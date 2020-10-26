@@ -1,16 +1,25 @@
 const express = require("express");
 const router = express.Router();
-const User = require('../../models/User');
 const bcrypt = require('bcryptjs');
+const User = require('../../models/User');
 const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
 const passport = require('passport');
+
 const validateRegisterInput = require('../../validation/register');
 const validateLoginInput = require('../../validation/login');
 
 router.get("/test", (req, res) => {
     res.json({ msg: "This is the users route" })
 });
+
+router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
+    res.json({
+      id: req.user.id,
+      handle: req.user.handle,
+      email: req.user.email
+    });
+})
 
 router.post("/register", (req, res) => {
 
@@ -76,7 +85,7 @@ router.post('/login', (req, res) => {
                             (err, token) => {
                                 res.json({
                                     success: true, 
-                                    token: "Bearer" + token
+                                    token: "Bearer " + token
                                 });
                             }
                         )
@@ -86,18 +95,5 @@ router.post('/login', (req, res) => {
                 })
         }) 
 })
-
-router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
-    res.json({
-      id: req.user.id,
-      handle: req.user.handle,
-      email: req.user.email
-    });
-  })
-
-router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
-    res.json({ msg: 'Success' });
-})
-
 
 module.exports = router;
